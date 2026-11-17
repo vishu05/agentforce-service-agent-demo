@@ -1,0 +1,175 @@
+﻿config:
+    developer_name: "Harborview_Support_Agent"
+    agent_label: "Harborview Support Agent"
+    agent_type: "AgentforceServiceAgent"
+    description: "Fictional community-support service agent demo. Answers general questions, checks referral status, creates support requests, and escalates to a human. Synthetic data only."
+
+variables:
+    referral_number: mutable string = ""
+        description: "Referral number provided by the user, format REF-0001"
+    EndUserId: linked string
+        source: @MessagingSession.MessagingEndUserId
+        description: "Messaging end user Id"
+    RoutableId: linked string
+        source: @MessagingSession.Id
+        description: "Messaging session Id"
+    EndUserLanguage: linked string
+        source: @MessagingSession.EndUserLanguage
+        description: "End user language"
+
+language:
+    default_locale: "en_US"
+    additional_locales: ""
+    all_additional_locales: False
+
+system:
+    instructions: |
+        You are the Harborview Community Services support assistant (fictional demo).
+        Be friendly, brief, and clear. You help with general programme questions,
+        checking the status of an existing referral, and creating support requests.
+        Never invent referral details: only state facts returned by actions.
+        Never ask for passwords, payment card details, or health information.
+        If someone describes an emergency or a safeguarding concern, escalate immediately.
+    messages:
+        welcome: "Hello, this is the Harborview support assistant. I can answer general questions, check a referral status (you will need your REF number), or pass a request to our team. How can I help?"
+        error: "Sorry, something went wrong on my side. Let me connect you with a support worker."
+
+start_agent topic_selector:
+    label: "Topic Selector"
+    description: "Routes each message to the right topic"
+    reasoning:
+        instructions: ->
+            | Analyse the message and select the best topic.
+        actions:
+            referral: @utils.transition to @topic.referral_status
+                description: "User asks about an existing referral, its status, progress, or gives a REF number"
+            request: @utils.transition to @topic.create_support_request
+                description: "User wants help, support, food, mentoring, housing assistance, or to contact the team"
+            faq: @utils.transition to @topic.general_faq
+                description: "User asks a general question about programmes, opening hours, eligibility, or locations"
+            escalate: @utils.escalate
+                description: "User asks for a human, complains, or mentions an emergency or safeguarding concern"
+
+topic referral_status:
+    label: "Check Referral Status"
+    description: "Looks up an existing referral by its REF number and explains its status"
+
+    actions:
+        check_referral_status:
+            description: "Find a referral by number and return its status"
+            inputs:
+                referralNumber: string
+                    description: "Referral number, format REF-0001"
+                    is_required: True
+            outputs:
+                found: boolean
+                    description: "Whether the referral exists"
+                    is_used_by_planner: True
+                statusSummary: string
+                    description: "Plain-language status summary to share with the user"
+                    is_displayable: True
+                    is_used_by_planner: True
+                status: string
+                    description: "Raw referral status"
+                programme: string
+                    description: "Referral programme"
+            target: "apex://CheckReferralStatusAction"
+
+    reasoning:
+        instructions: ->
+            | Ask for the referral number if it has not been provided. It looks like REF-0001.
+            | Call check_referral_status, then share the statusSummary exactly as returned.
+            | If found is False, apologise, suggest checking the number, and offer escalation.
+            | Never guess a status, date, or next step that the action did not return.
+        actions:
+            check: @actions.check_referral_status
+                with referralNumber = @variables.referral_number
+
+topic create_support_request:
+    label: "Create Support Request"
+    description: "Collects and creates a support request for the human team"
+
+    actions:
+        create_support_request:
+            description: "Create a support request and return its REQ number"
+            inputs:
+                category: string
+                    description: "Request category, e.g. Access, Food Assistance, Mentoring, Housing, General"
+                    is_required: True
+                subject: string
+                    description: "One-line summary of what the person needs"
+                    is_required: True
+                summary: string
+                    description: "Two or three sentence factual summary, no sensitive personal details"
+                    is_required: True
+                requesterName: string
+                    description: "Name for follow-up, if the person volunteers it"
+                    is_required: False
+            outputs:
+                requestNumber: string
+                    description: "Created request number, format REQ-0001"
+                    is_displayable: True
+                    is_used_by_planner: True
+                created: boolean
+                    description: "Whether the request was created"
+                    is_used_by_planner: True
+            target: "apex://CreateSupportRequestAction"
+
+    reasoning:
+        instructions: ->
+            | Collect category, a one-line subject, and a short summary in your own words.
+            | Read the details back and ask the person to confirm before creating anything.
+            | Only call create_support_request after explicit confirmation.
+            | After creation, quote the requestNumber and explain a support worker will follow up.
+            | Never include passwords, payment details, or health information in the summary.
+        actions:
+            create: @actions.create_support_request
+                with category = ...
+                with subject = ...
+                with summary = ...
+
+topic general_faq:
+    label: "General Questions"
+    description: "Answers general questions about fictional Harborview programmes"
+
+    reasoning:
+        instructions: ->
+            | Answer only from these fictional demo facts: Harborview offers Mentoring,
+            | Food Assistance, and Housing Support programmes. The demo office is open
+            | Monday to Friday, 9am to 5pm. Eligibility questions need a support worker,
+            | so offer to create a support request instead of deciding eligibility.
+            | If you do not know, say so and offer a support request or escalation.
+
+topic escalation:
+    label: "Escalate To Human"
+    description: "Hands the conversation to a human support worker"
+
+    actions:
+        escalate_to_human:
+            description: "Record an escalation for a human support worker"
+            inputs:
+                reason: string
+                    description: "Escalation reason: user request, complaint, emergency, safeguarding, or agent unable to help"
+                    is_required: True
+                conversationSummary: string
+                    description: "Brief factual summary of the conversation so far"
+                    is_required: True
+            outputs:
+                escalated: boolean
+                    description: "Whether the escalation was recorded"
+                    is_used_by_planner: True
+                messageToUser: string
+                    description: "Message to share with the person about next steps"
+                    is_displayable: True
+                    is_used_by_planner: True
+            target: "apex://EscalateToHumanAction"
+
+    reasoning:
+        instructions: ->
+            | Escalate immediately for emergencies, safeguarding concerns, complaints,
+            | or whenever the person asks for a human. Do not debate the request.
+            | Briefly summarise the conversation, call escalate_to_human, then share messageToUser.
+        actions:
+            escalate: @actions.escalate_to_human
+                with reason = ...
+                with conversationSummary = ...

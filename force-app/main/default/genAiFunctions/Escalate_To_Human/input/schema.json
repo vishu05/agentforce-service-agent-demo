@@ -1,0 +1,1 @@
+{"type":"object","properties":{"reason":{"type":"string"},"conversationSummary":{"type":"string"}},"required":["reason","conversationSummary"]}

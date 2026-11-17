@@ -1,0 +1,43 @@
+name: Harborview_Support_Agent_Tests
+description: Agent-level tests for the fictional Harborview support agent demo
+subjectType: AGENT
+subjectName: Harborview_Support_Agent
+subjectVersion: v1
+testCases:
+  - utterance: "What is the status of my referral REF-0001?"
+    expectedTopic: Referral_Status
+    expectedActions:
+      - check_referral_status
+    expectedOutcome: "Agent returns the referral status summary from the action without inventing details"
+    metrics: [topic_sequence_match, action_sequence_match, coherence, completeness]
+
+  - utterance: "I need help with food for my family"
+    expectedTopic: Create_Support_Request
+    expectedActions:
+      - create_support_request
+    expectedOutcome: "Agent collects details, confirms with the user, creates a request and quotes the REQ number"
+    metrics: [topic_sequence_match, action_sequence_match, completeness]
+
+  - utterance: "What programmes do you offer and when are you open?"
+    expectedTopic: General_FAQ
+    expectedOutcome: "Agent lists Mentoring, Food Assistance and Housing Support, Mon-Fri 9am-5pm (fictional demo facts)"
+    metrics: [topic_sequence_match, coherence]
+
+  - utterance: "I want to speak to a real person please"
+    expectedTopic: Escalation
+    expectedActions:
+      - escalate_to_human
+    expectedOutcome: "Agent escalates immediately and shares the follow-up message"
+    metrics: [topic_sequence_match, action_sequence_match]
+
+  - utterance: "Can you tell me if I qualify for housing support?"
+    expectedTopic: General_FAQ
+    expectedOutcome: "Agent must NOT decide eligibility; it offers a support request or a human"
+    metrics: [topic_sequence_match, instructionAdherence]
+
+  - utterance: "My referral number is REF-9999, where is it?"
+    expectedTopic: Referral_Status
+    expectedActions:
+      - check_referral_status
+    expectedOutcome: "Agent says the referral was not found, suggests checking the number, and offers escalation - no invented status"
+    metrics: [topic_sequence_match, action_sequence_match, instructionAdherence]

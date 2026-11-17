@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Agent action backed by the CreateSupportRequestAction Apex invocable class. See the Agent Script topic that references it.</description>
+    <invocationTarget>CreateSupportRequestAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <masterLabel>Create Support Request</masterLabel>
+</GenAiFunction>

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlugin xmlns="http://soap.sforce.com/2006/04/metadata">
+    <canEscalate>true</canEscalate>
+    <description>Use for general programme, hours, and location questions.</description>
+    <developerName>General_FAQ</developerName>
+    
+    <language>en_US</language>
+    <masterLabel>General Questions</masterLabel>
+    <pluginType>Topic</pluginType>
+    <scope>Answer only from the fictional demo facts in the instructions; offer a support request for anything else.</scope>
+</GenAiPlugin>

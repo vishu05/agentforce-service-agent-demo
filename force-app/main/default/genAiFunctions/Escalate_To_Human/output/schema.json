@@ -1,0 +1,1 @@
+{"type":"object","properties":{"escalated":{"type":"boolean"},"messageToUser":{"type":"string"}}}

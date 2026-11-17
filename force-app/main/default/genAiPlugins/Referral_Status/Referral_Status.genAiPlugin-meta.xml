@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlugin xmlns="http://soap.sforce.com/2006/04/metadata">
+    <canEscalate>true</canEscalate>
+    <description>Use when someone asks about an existing referral, its progress, or provides a REF number.</description>
+    <developerName>Referral_Status</developerName>
+    <genAiFunctions><functionName>Check_Referral_Status</functionName></genAiFunctions>
+    <language>en_US</language>
+    <masterLabel>Check Referral Status</masterLabel>
+    <pluginType>Topic</pluginType>
+    <scope>Look up referrals by number and explain status using action results only.</scope>
+</GenAiPlugin>

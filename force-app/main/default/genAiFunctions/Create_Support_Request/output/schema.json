@@ -1,0 +1,1 @@
+{"type":"object","properties":{"requestNumber":{"type":"string"},"created":{"type":"boolean"}}}

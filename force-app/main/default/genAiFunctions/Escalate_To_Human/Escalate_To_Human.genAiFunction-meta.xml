@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Agent action backed by the EscalateToHumanAction Apex invocable class. See the Agent Script topic that references it.</description>
+    <invocationTarget>EscalateToHumanAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <masterLabel>Escalate To Human</masterLabel>
+</GenAiFunction>
